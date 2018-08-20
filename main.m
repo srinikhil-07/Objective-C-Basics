@@ -138,7 +138,7 @@ int main(int argv, const char* argc[]){
         [egThread start];
     //[inst threadMethod:10];
     }
-    else if(choice==2){
+    else if(choice==2){ //creates a subprocess
         [inst taskExample];
     }
     return 0;
