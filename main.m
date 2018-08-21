@@ -1,4 +1,5 @@
 #import <Foundation/Foundation.h>
+#import <Appkit/Appkit.h>
 #import "DelegatingClass.h"
 
 @interface EgClass: DelegatingClass
@@ -64,9 +65,9 @@
     dispatch_queue_t queue=dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_async(queue, ^{
         NSTask *task=[[NSTask alloc] init];
-        [task setExecutableURL:[NSURL fileURLWithPath:@"/bin/sh"]];
-        [task setArguments:[NSArray arrayWithObjects:@"-c",@"open /Applications/iBooks.app", nil]];
-        
+        //[task setExecutableURL:[NSURL fileURLWithPath:@"/bin/sh"]];
+        //[task setArguments:[NSArray arrayWithObjects:@"-c",@"open /Applications/iBooks.app", nil]];
+        [[NSWorkspace sharedWorkspace] launchApplication:@"iBooks"]; //using shared workspace to open iBooks app
         NSPipe *oPipe=[[NSPipe alloc] init];
         NSPipe *ePipe=[[NSPipe alloc]init];
         [task setStandardOutput:oPipe];
