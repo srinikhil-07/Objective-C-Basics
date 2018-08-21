@@ -63,7 +63,7 @@
     dispatch_async(queue, ^{
         NSTask *task=[[NSTask alloc] init];
         [task setExecutableURL:[NSURL fileURLWithPath:@"/bin/sh"]];
-        [task setArguments:[NSArray arrayWithObjects:@"-c",@"ls /Volumes", nil]];
+        [task setArguments:[NSArray arrayWithObjects:@"-c",@"open /Applications/iBooks.app", nil]];
         
         NSPipe *oPipe=[[NSPipe alloc] init];
         NSPipe *ePipe=[[NSPipe alloc]init];
@@ -132,6 +132,7 @@ int main(int argv, const char* argc[]){
     NSLog(@"Choice 1: Create a thread and trigger a timer");
     NSLog(@"Choice 2: Execute command line commands from a process");
     scanf("%i",&choice);
+    //choice=2;
     EgClass *inst=[[EgClass alloc] init];
     if(choice==1){ //thread is triggered but not timer, resolve this issue
         NSThread *egThread=[[NSThread alloc] initWithTarget:inst selector:@selector(threadMethod:) object:NULL];
