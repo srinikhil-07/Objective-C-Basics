@@ -6,6 +6,7 @@
 - (void) timerFired:(NSTimer *)a;
 -(void) taskExample;
 -(void) delegateTask:(DelegatingClass *)sender;
+-(void) launchDaemon;
 @end
 // TO.DO : check whats stopping the NSTimer
 @implementation EgClass
@@ -127,6 +128,37 @@
 -(void) delegateTask:(DelegatingClass *)sender{
     NSLog(@"Delegated task executed! \n");
 }
+-(void) launchDaemon{
+    NSTask *task=[[NSTask alloc] init];
+    [task setExecutableURL:[NSURL fileURLWithPath:@"/bin/sh"]];
+    [task setArguments:[NSArray arrayWithObjects:@"-c",@"launchctl load /Library/LaunchDaemons/com.Safari.keepAlive.plist", nil]];
+    
+    NSPipe *oPipe=[[NSPipe alloc] init];
+    NSPipe *ePipe=[[NSPipe alloc]init];
+    [task setStandardOutput:oPipe];
+    [task setStandardError:ePipe];
+    NSError *error =nil;
+    if(![task launchAndReturnError:(&error)]){
+        NSLog(@"Error in NSTask! with error :%@ \n",error);
+        return;
+    }
+    [task waitUntilExit]; //block until receiver is finished
+    if(task.terminationStatus !=0){
+        //ERROR
+        NSFileHandle *file=ePipe.fileHandleForReading;
+        NSData *data=[file readDataToEndOfFile];
+        [file closeFile];
+        NSString *errMsg=[[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding];
+        NSLog(@"ERROR (%i); %@ ",task.terminationStatus,errMsg);
+        return;
+    }
+    //SUCCESS
+    NSFileHandle *file =oPipe.fileHandleForReading;
+    NSData *data=[file readDataToEndOfFile];
+    [file closeFile];
+    NSString *outMsg=[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    NSLog(@"OUtput is : %@",outMsg);
+}
 @end
 
 int main(int argv, const char* argc[]){
@@ -134,8 +166,9 @@ int main(int argv, const char* argc[]){
     NSLog(@"Enter your choice");
     NSLog(@"Choice 1: Create a thread and trigger a timer");
     NSLog(@"Choice 2: Execute command line commands from a process");
-    scanf("%i",&choice);
-    //choice=2;
+    NSLog(@"Choice 3: Execute launchd from this program \n");
+    //scanf("%i",&choice);
+    choice=2;
     DelegatingClass *boss =[[DelegatingClass alloc]init];
     EgClass *delegatePerson=[[EgClass alloc]init];
     boss.delegate=delegatePerson; //makes egClass conform to Delegate protocol
@@ -148,6 +181,9 @@ int main(int argv, const char* argc[]){
     }
     else if(choice==2){ //creates a subprocess
         [inst taskExample];
+    }
+    else if(choice==3){
+        [inst launchDaemon]; // this launches daemon directly
     }
     return 0;
 }
