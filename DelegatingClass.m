@@ -7,3 +7,12 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "DelegatingClass.h"
+
+@implementation DelegatingClass
+@synthesize delegate;
+
+-(void) someOneDoDelegation{
+    [self.delegate delegateTask: self];
+}
+@end

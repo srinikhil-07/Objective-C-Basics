@@ -1,10 +1,11 @@
 #import <Foundation/Foundation.h>
+#import "DelegatingClass.h"
 
-
-@interface EgClass: NSObject
+@interface EgClass: DelegatingClass
 - (void) threadMethod: (int) a;
 - (void) timerFired:(NSTimer *)a;
 -(void) taskExample;
+-(void) delegateTask:(DelegatingClass *)sender;
 @end
 // TO.DO : check whats stopping the NSTimer
 @implementation EgClass
@@ -121,8 +122,10 @@
     NSString *outMsg=[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
     NSLog(@"OUtput is : %@",outMsg);
     
-    
-    
+}
+
+-(void) delegateTask:(DelegatingClass *)sender{
+    NSLog(@"Delegated task executed! \n");
 }
 @end
 
@@ -133,6 +136,10 @@ int main(int argv, const char* argc[]){
     NSLog(@"Choice 2: Execute command line commands from a process");
     scanf("%i",&choice);
     //choice=2;
+    DelegatingClass *boss =[[DelegatingClass alloc]init];
+    EgClass *delegatePerson=[[EgClass alloc]init];
+    boss.delegate=delegatePerson; //makes egClass conform to Delegate protocol
+    [boss someOneDoDelegation]; //when DelegatingClass wants someone to do his task, EgClass does it.
     EgClass *inst=[[EgClass alloc] init];
     if(choice==1){ //thread is triggered but not timer, resolve this issue
         NSThread *egThread=[[NSThread alloc] initWithTarget:inst selector:@selector(threadMethod:) object:NULL];
