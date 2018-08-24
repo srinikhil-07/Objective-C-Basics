@@ -1,6 +1,9 @@
 #import <Foundation/Foundation.h>
 #import <Appkit/Appkit.h>
 #import "DelegatingClass.h"
+#import "EgDynamicStore.h"
+#import <SystemConfiguration/SystemConfiguration.h>
+#import <Cocoa/Cocoa.h>
 
 @interface EgClass: DelegatingClass
 - (void) threadMethod: (int) a;
@@ -162,6 +165,19 @@
 }
 @end
 
+static void scCallBack(SCDynamicStoreRef dynStore, CFArrayRef changedKeys, void *info) {
+    NSLog(@"Ip changed \n");
+    // log into a file
+    NSString *str=@"\n Login/logout happened";
+    NSData *data=[str dataUsingEncoding:NSUTF8StringEncoding];
+    //[str writeToFile:@"/Users/sri-7348/Desktop/log.txt" atomically:YES encoding:NSUTF8StringEncoding error:nil];
+    NSFileHandle *log=[NSFileHandle fileHandleForWritingAtPath:@"/Users/sri-7348/Desktop/log.txt" ];
+    [log seekToEndOfFile];
+    [log writeData:data];
+    [log closeFile];
+    sleep(1);
+    
+}
 int main(int argv, const char* argc[]){
     int choice;
     NSLog(@"Enter your choice");
@@ -169,12 +185,13 @@ int main(int argv, const char* argc[]){
     NSLog(@"Choice 2: Execute command line commands from a process");
     NSLog(@"Choice 3: Execute launchd from this program \n");
     //scanf("%i",&choice);
-    choice=2;
+    choice=4;
     DelegatingClass *boss =[[DelegatingClass alloc]init];
     EgClass *delegatePerson=[[EgClass alloc]init];
     boss.delegate=delegatePerson; //makes egClass conform to Delegate protocol
     [boss someOneDoDelegation]; //when DelegatingClass wants someone to do his task, EgClass does it.
     EgClass *inst=[[EgClass alloc] init];
+    EgDynamicStore *dsInst=[[EgDynamicStore alloc]init];
     if(choice==1){ //thread is triggered but not timer, resolve this issue
         NSThread *egThread=[[NSThread alloc] initWithTarget:inst selector:@selector(threadMethod:) object:NULL];
         [egThread start];
@@ -185,6 +202,38 @@ int main(int argv, const char* argc[]){
     }
     else if(choice==3){
         [inst launchDaemon]; // this launches daemon directly
+    }
+    else if(choice==4){
+        // this part of code notifies whenever a user logins/logouts using SCDynamicStore
+        SCDynamicStoreContext context = {0, NULL, NULL, NULL, NULL};
+        SCDynamicStoreRef ds = SCDynamicStoreCreate(NULL, CFBundleGetIdentifier(CFBundleGetMainBundle()), scCallBack, &context);
+        NSLog(@"Printing the DS ref %@ \n",ds);
+        //NSString *key=@"State:/Network/Global/IPv4";
+        //const CFStringRef keys[3] = {
+         //   CFSTR("State:/Network/Global/IPv4")
+       // };
+        const CFStringRef keys[3]={ CFSTR("State:/Users/ConsoleUser")};
+        
+        
+        CFArrayRef watchedKeys = CFArrayCreate(kCFAllocatorDefault,
+                                               (const void **)keys,
+                                               1,
+                                               &kCFTypeArrayCallBacks);
+        if(SCDynamicStoreSetNotificationKeys(ds,NULL, watchedKeys)){
+            
+            CFRunLoopSourceRef src = SCDynamicStoreCreateRunLoopSource(kCFAllocatorDefault, ds, 0);
+            CFRunLoopAddSource([[NSRunLoop currentRunLoop] getCFRunLoop],
+                               src,
+                               kCFRunLoopCommonModes);
+            [[NSRunLoop currentRunLoop] run];
+        }else{
+            CFRelease(watchedKeys);
+            fprintf(stderr, "SCDynamicStoreSetNotificationKeys() failed: %s", SCErrorString(SCError()));
+            CFRelease(ds);
+            ds = NULL;
+            
+            return 0;
+        }
     }
     return 0;
 }

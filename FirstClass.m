@@ -262,7 +262,7 @@
     NSTask *task=[[NSTask alloc] init];
     [task setExecutableURL:[NSURL fileURLWithPath:@"/bin/sh"]];
     [task setArguments:[NSArray arrayWithObjects:@"-c",@"launchctl asuser 502 launchctl load /Library/LaunchDaemons/com.myexec.runAtLoad.plist",nil]]; // use chown to change owner to make this work!!
-    // to open this for multiple users at a time, its working.
+    // to open this for multiple users at a time, its working.n
     [task setArguments:[NSArray arrayWithObjects:@"-c",@"launchctl asuser 503 launchctl load /Library/LaunchDaemons/com.myexec.runAtLoad.plist",nil]];
     
     NSPipe *oPipe=[[NSPipe alloc] init];
