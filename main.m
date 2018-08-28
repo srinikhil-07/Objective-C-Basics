@@ -3,7 +3,7 @@
 #import "DelegatingClass.h"
 #import <SystemConfiguration/SystemConfiguration.h>
 #import <Cocoa/Cocoa.h>
-
+#import "HTTPWork.h"
 
 @interface EgClass: DelegatingClass
 - (void) threadMethod: (int) a;
@@ -220,7 +220,7 @@ int main(int argv, const char* argc[]){
     NSLog(@"Choice 2: Execute command line commands from a process");
     NSLog(@"Choice 3: Execute launchd from this program \n");
     //scanf("%i",&choice);
-    choice=5;
+    choice=7;
     DelegatingClass *boss =[[DelegatingClass alloc]init];
     EgClass *delegatePerson=[[EgClass alloc]init];
     boss.delegate=delegatePerson; //makes egClass conform to Delegate protocol
@@ -291,6 +291,14 @@ int main(int argv, const char* argc[]){
             NSLog(@"Success! \n");
         }
     }
-    
+    else if(choice==7){
+        //http upload and download
+        HTTPWork *httpTask=[[HTTPWork alloc]init];
+        //Download
+        [httpTask downloadData];//SessionDownloadTask example
+        [httpTask saveFilesInLocalDirectory]; //NSData with URL example
+        [httpTask saveFilesFast];// SessionDataTask example
+        NSLog(@"back to main \n");
+    }
     return 0;
 }
