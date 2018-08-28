@@ -7,3 +7,7 @@ So far, wrote code on
 3. launchd,
 4. A sample custom delegate,
 5. NSRunLoop and NSTimer,
+6. Manipulating dynamic store with SCDynamicStore,
+7. Get notifications on state change in dynamic store,
+8. NSWorkspace: launch app,file, get shutdown,sleep notifications etc,
+9. Download URL by three ways (SessionData,SessionDownloadTask,NSData with URL),
