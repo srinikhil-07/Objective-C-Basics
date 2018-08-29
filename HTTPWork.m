@@ -9,11 +9,24 @@
 #import <Foundation/Foundation.h>
 #import "HTTPWork.h"
 BOOL shouldKeepRunning=YES;
+
 @implementation HTTPWork
 
-
 -(void) uploadData{
-    NSLog(@"hi");
+    NSString *str=@"/agentLogUploader?computerName=%s&domainName=%s&customerId=%s&resourceid=%s&filename=%s";
+    NSURL *uploadURL=[NSURL URLWithString:str];
+    NSMutableURLRequest *uRequest=[NSMutableURLRequest requestWithURL:uploadURL];
+    [uRequest setHTTPMethod:@"POST"];
+    NSURLSessionConfiguration *config=[NSURLSessionConfiguration defaultSessionConfiguration];
+    NSURLSession *session=[NSURLSession sessionWithConfiguration:config delegate:self delegateQueue:nil];
+    NSString *fileStr=@"/Users/sri-7348/Documents/img1.jpg";
+    NSURL *fileURL=[NSURL URLWithString:fileStr];
+    NSURLSessionUploadTask *upload=[session uploadTaskWithRequest:uRequest fromFile:fileURL];
+    [upload resume];
+    //[[NSRunLoop currentRunLoop]run];
+    CFRunLoopRef rl=CFRunLoopGetCurrent();
+    CFRunLoopRun();
+    //CFRunLoopStop(rl);
 }
 
 // needs runloop/async dispatch, make it exit runloop
@@ -47,7 +60,7 @@ BOOL shouldKeepRunning=YES;
     NSLog(@"object is: %@ \n",download.progress);
     }
 
--(void)saveFilesInLocalDirectory //working but dont use this synchronous methos for network based URL cos takes a lot of time
+-(void)saveFilesInLocalDirectory //working but dont use this synchronous methods for network based URL cos takes a lot of time
 {
     NSString * documentsDirectoryPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
     NSString *fileName = @"gandhi.pdf";
@@ -112,5 +125,21 @@ BOOL shouldKeepRunning=YES;
     while(shouldKeepRunning){
     [[NSRunLoop currentRunLoop]run];
     }
+    
+    
+}
+
+- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didSendBodyData:(int64_t)bytesSent totalBytesSent:(int64_t)totalBytesSent totalBytesExpectedToSend:(int64_t)totalBytesExpectedToSend{
+    NSLog(@"Session is : %@ \n task is %@ \n sent : %lld \n to send: %lld ",session,task,totalBytesSent,totalBytesExpectedToSend);
+}
+
+- (void)URLSession:(NSURLSession *)session
+              task:(NSURLSessionTask *)task
+didCompleteWithError:(NSError *)error{
+    if(error !=NULL){
+        NSLog(@"Error occured!: %@ \n",error);
+    }
+    
 }
 @end
+

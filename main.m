@@ -295,10 +295,13 @@ int main(int argv, const char* argc[]){
         //http upload and download
         HTTPWork *httpTask=[[HTTPWork alloc]init];
         //Download
-        [httpTask downloadData];//SessionDownloadTask example
-        [httpTask saveFilesInLocalDirectory]; //NSData with URL example
-        [httpTask saveFilesFast];// SessionDataTask example
+        //[httpTask downloadData];//SessionDownloadTask example
+        //[httpTask saveFilesInLocalDirectory]; //NSData with URL example
+        //[httpTask saveFilesFast];// SessionDataTask example
+        [httpTask uploadData];
         NSLog(@"back to main \n");
+        //upload
+        
     }
     return 0;
 }
