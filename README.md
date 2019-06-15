@@ -1,4 +1,4 @@
-# macOS
+# Objective C basics
 macOS code.
 Code I am writing to get started with Objective-C and macOS. 
 So far, wrote code on 
